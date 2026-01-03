@@ -16,6 +16,9 @@ jobs:
     runs-on: hitman
     name: Setup Nodejs & Application Build
     steps:
+    - name: Checkout
+      uses: actions/checkout@v6.0.1
+      
     - name: Setup Nodejs
       run: Get-Content package.json
     
