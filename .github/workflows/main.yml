@@ -19,7 +19,9 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v6.0.1
       
-    - name: Setup Nodejs
-      run: Get-Content package.json
+    - name: Setup Node.js environment
+      uses: actions/setup-node@v6.1.0
+      with:
+        node-version: 16.x
     
 
