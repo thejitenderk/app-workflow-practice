@@ -42,3 +42,6 @@ jobs:
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        
+    - uses: SonarSource/sonarqube-quality-gate-action@v1.2.0
+      if: always()
