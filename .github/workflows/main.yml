@@ -1,0 +1,22 @@
+name: Application Build
+
+on:
+  workflow_dispatch:
+  # push:
+  #   branches:
+  #   - main
+  #   - develop
+  # pull_request:
+  #   branches:
+  #     - main
+  #     - develop
+
+jobs:
+  Build:
+    runs-on: hitman
+    name: Setup Nodejs & Application Build
+    steps:
+    - name: Setup Nodejs
+      run: echo "Hello Mandeep"
+    
+
