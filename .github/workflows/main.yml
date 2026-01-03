@@ -36,3 +36,12 @@ jobs:
         VALIDATE_CSS: true
         VALIDATE_JAVASCRIPT_ES: true
         VALIDATE_JSON: true
+    
+    - uses: SonarSource/sonarqube-scan-action@v6
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        
+    - uses: SonarSource/sonarqube-quality-gate-action@v1.2.0
+      with:
+        pollingTimeoutSec: 600
