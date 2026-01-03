@@ -17,6 +17,6 @@ jobs:
     name: Setup Nodejs & Application Build
     steps:
     - name: Setup Nodejs
-      run: echo "Hello Mandeep"
+      run: Get-Content package.json
     
 
