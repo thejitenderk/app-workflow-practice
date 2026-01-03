@@ -38,10 +38,12 @@ jobs:
         VALIDATE_JSON: true
     
     - uses: SonarSource/sonarqube-scan-action@v6
+      if: always()
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         
     - uses: SonarSource/sonarqube-quality-gate-action@v1.2.0
+      if: always()
       with:
         pollingTimeoutSec: 600
