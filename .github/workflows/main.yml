@@ -24,4 +24,5 @@ jobs:
       with:
         node-version: 16.x
     
-
+    - name: Super-Linter
+      uses: super-linter/super-linter@v7.1.0
