@@ -111,4 +111,5 @@ jobs:
         port: ${{ secrets.PORT }}
         script: |
           cd /home/${{ secrets.USERNAME }}/app
-          sudo cp -r * /var/www/html
+          echo "${{ secrets.PASSWORD }}" | sudo -S cp -r * /var/www/html
+
