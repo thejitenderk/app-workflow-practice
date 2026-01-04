@@ -57,7 +57,7 @@ jobs:
       uses: actions/setup-node@v6.1.0
       with: 
         node-version: 16.x
-        cache: node_modules
+        cache: 'npm'
         
     - name: Install Dependencies
       run: npm install
