@@ -84,7 +84,7 @@ jobs:
     - name: Download a Build Artifact
       uses: actions/download-artifact@v7.0.0
       with:
-        name: reactTodoUI
+        name: reactTodoUI-${{ github.run_id }}
         
     - name: Download from current run id
       run: echo "This artifact downloaded from this run id - ${{ github.run_id }}"
@@ -96,5 +96,5 @@ jobs:
         username: ${{ secrets.USERNAME }}
         password: ${{ secrets.PASSWORD }}
         port: ${{ secrets.PORT }}
-        source: reactTODOUI
+        source: reactTodoUI-${{ github.run_id }}
         target: /home/azureadmin/app
