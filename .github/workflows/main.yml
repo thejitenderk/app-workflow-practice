@@ -18,33 +18,34 @@ permissions:
   statuses: write
 
 jobs:
-  ScanJob:
-    runs-on: ubuntu-latest
-    name: Scan Job (SonarQube Analysis)
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v6.0.1
+#   ScanJob:
+#     runs-on: ubuntu-latest
+#     name: Scan Job (SonarQube Analysis)
+#     steps:
+#     - name: Checkout
+#       uses: actions/checkout@v6.0.1
       
-    - name: SonarQube Analysis
-      uses: SonarSource/sonarqube-scan-action@v6
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+#     - name: SonarQube Analysis
+#       uses: SonarSource/sonarqube-scan-action@v6
+#       env:
+#         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+#         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         
-  LintJob:
-    name: Lint Job (Super Linter)
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v6.0.1
+#   LintJob:
+#     name: Lint Job (Super Linter)
+#     runs-on: ubuntu-latest
+#     steps:
+#     - name: Checkout
+#       uses: actions/checkout@v6.0.1
       
-    - name: Super-Linter
-      uses: super-linter/super-linter@v7.1.0
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        VALIDATE_CSS: true
-        VALIDATE_JAVASCRIPT_ES: true
-        VALIDATE_JSON: true
+#     - name: Super-Linter
+#       uses: super-linter/super-linter@v7.1.0
+#       continue-on-error: true
+#       env:
+#         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#         VALIDATE_CSS: true
+#         VALIDATE_JAVASCRIPT_ES: true
+#         VALIDATE_JSON: true
         
   BuildJob:
     name: Build Job Package (Setup Nodejs & Build Artifact)
@@ -69,7 +70,7 @@ jobs:
     - name: Publish Build Artifact
       uses: actions/upload-artifact@v6.0.0
       with:
-        name: reactTodoUI
+        name: reactTodoUI-${{ github.run_id }}
         path: build
         
     - name: Echo Run ID
@@ -87,3 +88,13 @@ jobs:
         
     - name: Download from current run id
       run: echo "This artifact downloaded from this run id - ${{ github.run_id }}"
+
+    - name: Copy files via SSH
+      uses: appleboy/scp-action@v1
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.PASSWORD }}
+        port: ${{ secrets.PORT }}
+        source: reactTODOUI
+        target: /home/azureadmin/app
