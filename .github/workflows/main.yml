@@ -89,6 +89,9 @@ jobs:
     - name: Download from current run id
       run: echo "This artifact downloaded from this run id - ${{ github.run_id }}"
 
+    - name: List Files & Folder
+      run: ls -l
+
     - name: Copy files via SSH
       uses: appleboy/scp-action@v1
       with:
@@ -97,4 +100,4 @@ jobs:
         password: ${{ secrets.PASSWORD }}
         port: ${{ secrets.PORT }}
         source: reactTodoUI-${{ github.run_id }}
-        target: /home/azureadmin/app
+        target: /home/${{ secrets.USERNAME }}/app
