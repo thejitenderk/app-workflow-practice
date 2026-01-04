@@ -99,5 +99,5 @@ jobs:
         username: ${{ secrets.USERNAME }}
         password: ${{ secrets.PASSWORD }}
         port: ${{ secrets.PORT }}
-        source: reactTodoUI-${{ github.run_id }}
+        source: "*"
         target: /home/${{ secrets.USERNAME }}/app
