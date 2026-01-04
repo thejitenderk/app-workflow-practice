@@ -2,14 +2,15 @@ name: Application Build
 
 on:
   workflow_dispatch:
-  # push:
-  #   branches:
-  #   - main
-  #   - develop
+  push:
+    branches:
+    - main
+    - develop
   # pull_request:
   #   branches:
   #     - main
   #     - develop
+  
 permissions:
   contents: read
   packages: read
@@ -17,24 +18,26 @@ permissions:
   statuses: write
 
 jobs:
-  Build:
+  ScanJob:
     runs-on: ubuntu-latest
-    name: Setup Nodejs & Application Build
+    name: Scan Job (SonarQube Analysis)
     steps:
     - name: Checkout
       uses: actions/checkout@v6.0.1
       
-    - name: Setup Node.js environment
-      uses: actions/setup-node@v6.1.0
-      with:
-        node-version: 16.x
-
     - name: SonarQube Analysis
       uses: SonarSource/sonarqube-scan-action@v6
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-  
+        
+  LintJob:
+    name: Lint Job (Super Linter)
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v6.0.1
+      
     - name: Super-Linter
       uses: super-linter/super-linter@v7.1.0
       env:
@@ -42,6 +45,20 @@ jobs:
         VALIDATE_CSS: true
         VALIDATE_JAVASCRIPT_ES: true
         VALIDATE_JSON: true
+        
+  BuildJob:
+    name: Build Job Package (Setup Nodejs & Build Artifact)
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v6.0.1
+      
+    - name: Setup Node.js environment
+      uses: actions/setup-node@v6.1.0
+      with: 
+        node-version: 16.x
+        cache: node_modules
+        
     - name: Install Dependencies
       run: npm install
 
