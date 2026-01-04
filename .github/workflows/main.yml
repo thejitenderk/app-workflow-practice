@@ -105,9 +105,10 @@ jobs:
     - name: Deploy on VM
       uses: appleboy/ssh-action@v1.0.3
       with:
-        host: ${{ secrets.AZURE_VM_HOST }}
-        username: ${{ secrets.AZURE_VM_USER }}
-        key: ${{ secrets.AZURE_VM_SSH_KEY }}
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.PASSWORD }}
+        port: ${{ secrets.PORT }}
         script: |
           cd /home/${{ secrets.USERNAME }}/app
           sudo cp -r * /var/www/html
