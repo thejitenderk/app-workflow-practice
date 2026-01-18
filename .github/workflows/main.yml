@@ -2,10 +2,10 @@ name: Application Build
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-    - main
-    - develop
+  # push:
+  #   branches:
+  #   - main
+  #   - develop
   # pull_request:
   #   branches:
   #     - main
@@ -18,34 +18,43 @@ permissions:
   statuses: write
 
 jobs:
-#   ScanJob:
-#     runs-on: ubuntu-latest
-#     name: Scan Job (SonarQube Analysis)
-#     steps:
-#     - name: Checkout
-#       uses: actions/checkout@v6.0.1
-      
-#     - name: SonarQube Analysis
-#       uses: SonarSource/sonarqube-scan-action@v6
-#       env:
-#         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-#         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+  verify:
+    runs-on: arc-runner-set
+    name: Verify ARC System
+    steps:
+      - name: OS Version
+        run: cat /etc/os.release
+      - name: python version check
+        run: python3 --version
         
-#   LintJob:
-#     name: Lint Job (Super Linter)
-#     runs-on: ubuntu-latest
-#     steps:
-#     - name: Checkout
-#       uses: actions/checkout@v6.0.1
+  ScanJob:
+    runs-on: ubuntu-latest
+    name: Scan Job (SonarQube Analysis)
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v6.0.1
       
-#     - name: Super-Linter
-#       uses: super-linter/super-linter@v7.1.0
-#       continue-on-error: true
-#       env:
-#         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#         VALIDATE_CSS: true
-#         VALIDATE_JAVASCRIPT_ES: true
-#         VALIDATE_JSON: true
+    - name: SonarQube Analysis
+      uses: SonarSource/sonarqube-scan-action@v6
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        
+  LintJob:
+    name: Lint Job (Super Linter)
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v6.0.1
+      
+    - name: Super-Linter
+      uses: super-linter/super-linter@v7.1.0
+      continue-on-error: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        VALIDATE_CSS: true
+        VALIDATE_JAVASCRIPT_ES: true
+        VALIDATE_JSON: true
         
   BuildJob:
     name: Build Job Package (Setup Nodejs & Build Artifact)
