@@ -5,12 +5,12 @@ on:
     inputs:
       runner_type:
         description: 'Select the runner to use'
-        required: true
         default: 'arc-runner-set'
-  push:
-    branches:
-    - main
-    - develop
+        
+  # push:
+  #   branches:
+  #   - main
+  #   - develop
   # pull_request:
   #   branches:
   #     - main
@@ -27,7 +27,7 @@ env:
 
 jobs:
   verify:
-    runs-on: ${{ github.event.inputs.runner_type }}
+    runs-on: ${{ inputs.runner_type }}
     name: Verify ARC System
     steps:
       - name: OS Version
@@ -37,7 +37,7 @@ jobs:
         run: python3 --version
         
   ScanJob:
-    runs-on: ${{ github.event.inputs.runner_type }}
+    runs-on: ${{ inputs.runner_type }}
     name: Scan Job (SonarQube Analysis)
     steps:
     - name: Checkout
@@ -50,8 +50,8 @@ jobs:
         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         
   LintJob:
-    name: ${{ github.event.inputs.runner_type }}
-    runs-on: ubuntu-latest
+    name: lint job
+    runs-on: ${{ inputs.runner_type }}
     steps:
     - name: Checkout
       uses: actions/checkout@v6.0.1
@@ -67,7 +67,7 @@ jobs:
         
   BuildJob:
     name: Build Job Package (Setup Nodejs & Build Artifact)
-    runs-on: ${{ github.event.inputs.runner_type }}
+    runs-on: ${{ inputs.runner_type }}
     steps:
     - name: Checkout
       uses: actions/checkout@v6.0.1
@@ -97,7 +97,7 @@ jobs:
   ReleaseJob:
     needs: BuildJob
     name: Download & Deploy Artifact Job
-    runs-on: ${{ github.event.inputs.runner_type }}
+    runs-on: ${{ inputs.runner_type }}
     steps:
     - name: Download a Build Artifact
       uses: actions/download-artifact@v7.0.0
