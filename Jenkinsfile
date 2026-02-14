@@ -1,63 +1,42 @@
-pipeline {
-    agent any
-
-    environment {
-        ARTIFACTORY_SERVER = 'jfrogserv'
-        BUILD_DIR = "${WORKSPACE}/inventory_frontend/dist"
-        TARGET_REPO = "webinar-npm-dev-local/drop-${BUILD_NUMBER}/"
+node {
+    // SCM Checkout
+    stage('SCM') {
+        checkout scm
     }
 
-    stages {
-        stage('SCM Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-
-        stage('SonarQube Analysis') {
-            steps {
-                script {
-                    def scannerHome = tool 'SonarScanner'
-                    withSonarQubeEnv('SonarQube') {
-                        sh "${scannerHome}/bin/sonar-scanner"
-                    }
-                }
-            }
-        }
-
-        stage('Install Dependencies') {
-            steps {
-                sh 'npm install'
-            }
-        }
-
-        stage('Build Project') {
-            steps {
-                sh 'npm run build'
-            }
-        }
-
-        stage('Ping JFrog Artifactory') {
-            steps {
-                sh "jfrog rt ping --server-id=${ARTIFACTORY_SERVER}"
-            }
-        }
-
-        stage('Upload to JFrog Artifactory') {
-            steps {
-                sh """
-                    jfrog rt u "${BUILD_DIR}/*" ${TARGET_REPO} --recursive=true --server-id=${ARTIFACTORY_SERVER}
-                """
-            }
+    // SonarQube Analysis
+    stage('SonarQube Analysis') {
+        // Make sure this name matches your Jenkins SonarQube Scanner tool name
+        def scannerHome = tool 'SonarScanner'  
+        
+        // If you have only one SonarQube installation, no name is needed
+        withSonarQubeEnv() {
+            sh "${scannerHome}/bin/sonar-scanner"
         }
     }
 
-    post {
-        success {
-            echo "Pipeline completed successfully!"
-        }
-        failure {
-            echo "Pipeline failed!"
-        }
+    // Install npm dependencies
+    stage('Install Dependencies') {
+        sh 'npm install'
+    }
+
+    // Build the project
+    stage('Build Project') {
+        sh 'npm run build'
+    }
+
+    // Ping JFrog Artifactory
+    stage('Ping JFrog Artifactory') {
+        sh 'jfrog rt ping --server-id=jfrogserv'
+    }
+
+    // Upload to JFrog Artifactory
+    stage('Upload to JFrog Artifactory') {
+        sh '''
+            jfrog rt u "inventory_frontend/dist/*" \
+            webinar-npm-dev-local/drop-${BUILD_NUMBER}/ \
+            --recursive=true \
+            --server-id=jfrogserv
+        '''
     }
 }
