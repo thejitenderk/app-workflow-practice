@@ -1,42 +1,107 @@
+// node {
+//     // SCM Checkout
+//     stage('SCM') {
+//         checkout scm
+//     }
+
+//     // SonarQube Analysis
+//     stage('SonarQube Analysis') {
+//         // Make sure this name matches your Jenkins SonarQube Scanner tool name
+//         def scannerHome = tool 'SonarScanner'  
+        
+//         // If you have only one SonarQube installation, no name is needed
+//         withSonarQubeEnv() {
+//             sh "${scannerHome}/bin/sonar-scanner"
+//         }
+//     }
+
+//     // Install npm dependencies
+//     stage('Install Dependencies') {
+//         sh 'npm install'
+//     }
+
+//     // Build the project
+//     stage('Build Project') {
+//         sh 'npm run build'
+//     }
+
+//     // Ping JFrog Artifactory
+//     stage('Ping JFrog Artifactory') {
+//         sh 'jfrog rt ping --server-id=jfrogserv'
+//     }
+
+//     // Upload to JFrog Artifactory
+//     stage('Upload to JFrog Artifactory') {
+//         sh '''
+//             jfrog rt u "inventory_frontend/dist/*" \
+//             webinar-npm-dev-local/drop-${BUILD_NUMBER}/ \
+//             --recursive=true \
+//             --server-id=jfrogserv
+//         '''
+//     }
+// }
+
+
+
 node {
-    // SCM Checkout
+    // 1. Establish Artifactory server and Build Info objects
+    // 'jfrogserv' must match the Server ID in Jenkins Manage -> Configure System
+    def server = Artifactory.server 'jfrogserv'
+    def buildInfo = Artifactory.newBuildInfo()
+    buildInfo.name = "inventory_frontend"
+    buildInfo.number = BUILD_NUMBER
+
     stage('SCM') {
         checkout scm
     }
 
-    // SonarQube Analysis
     stage('SonarQube Analysis') {
-        // Make sure this name matches your Jenkins SonarQube Scanner tool name
-        def scannerHome = tool 'SonarScanner'  
-        
-        // If you have only one SonarQube installation, no name is needed
+        def scannerHome = tool 'SonarScanner'
         withSonarQubeEnv() {
             sh "${scannerHome}/bin/sonar-scanner"
         }
     }
 
-    // Install npm dependencies
     stage('Install Dependencies') {
-        sh 'npm install'
+        // 2. Set the npm resolver to your JFrog proxy/virtual repository
+        // Replace 'npm-virtual-repo' with your actual JFrog repository key
+        rtNpmResolver (
+            id: 'npm-resolver-config',
+            serverId: 'jfrogserv',
+            repo: 'webinar-npm'
+        )
+
+        // 3. Run npm install through the proxy
+        // This automatically collects dependency data for Build Info
+        rtNpmInstall (
+            resolverId: 'npm-resolver-config',
+            buildInfo: buildInfo
+        )
     }
 
-    // Build the project
     stage('Build Project') {
         sh 'npm run build'
     }
 
-    // Ping JFrog Artifactory
-    stage('Ping JFrog Artifactory') {
-        sh 'jfrog rt ping --server-id=jfrogserv'
+    stage('Upload to Artifactory') {
+        // 4. Upload artifacts using a File Spec
+        def uploadSpec = """{
+            "files": [
+                {
+                    "pattern": "dist/*",
+                    "target": "webinar-npm-dev-local/drop-${BUILD_NUMBER}/",
+                    "recursive": "true"
+                }
+            ]
+        }"""
+        
+        // Use server.upload to link these files to our buildInfo object
+        server.upload spec: uploadSpec, buildInfo: buildInfo
     }
 
-    // Upload to JFrog Artifactory
-    stage('Upload to JFrog Artifactory') {
-        sh '''
-            jfrog rt u "inventory_frontend/dist/*" \
-            webinar-npm-dev-local/drop-${BUILD_NUMBER}/ \
-            --recursive=true \
-            --server-id=jfrogserv
-        '''
+    stage('Publish Build Info') {
+        // 5. Collect environment variables and send metadata to JFrog
+        buildInfo.env.collect()
+        server.publishBuildInfo buildInfo
     }
 }
