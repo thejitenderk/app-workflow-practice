@@ -47,8 +47,9 @@ node {
     // 1. Establish Artifactory server and Build Info objects
     // 'jfrogserv' must match the Server ID in Jenkins Manage -> Configure System
     def server = Artifactory.server 'jfrogserv'
+    def nodeTool = tool name: 'NodeJS', type: 'jenkins.plugins.nodejs.tools.NodeJSInstallation'
     def buildInfo = Artifactory.newBuildInfo()
-    buildInfo.name = "inventory_frontend"
+    buildInfo.name = "todo"
     buildInfo.number = BUILD_NUMBER
 
     stage('SCM') {
