@@ -147,7 +147,7 @@ node {
             "files": [
                 {
                     "pattern": "dist/*",
-                    "target": "retry-npm/drop-${BUILD_NUMBER}/",
+                    "target": "retry-npm-dev-local/drop-${BUILD_NUMBER}/",
                     "recursive": "true"
                 }
             ]
