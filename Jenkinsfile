@@ -69,7 +69,7 @@ node {
         rtNpmResolver (
             id: 'npm-resolver-config',
             serverId: 'jfrogserv',
-            repo: 'webinar-npm'
+            repo: 'retry-npm'
         )
 
         // 3. Run npm install through the proxy
@@ -90,7 +90,7 @@ node {
             "files": [
                 {
                     "pattern": "dist/*",
-                    "target": "webinar-npm-dev-local/drop-${BUILD_NUMBER}/",
+                    "target": "retry-npm/drop-${BUILD_NUMBER}/",
                     "recursive": "true"
                 }
             ]
