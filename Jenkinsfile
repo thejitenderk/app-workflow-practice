@@ -43,9 +43,71 @@
 
 
 
+// node {
+//     // 1. Establish Artifactory server and Build Info objects
+//     // 'jfrogserv' must match the Server ID in Jenkins Manage -> Configure System
+//     def server = Artifactory.server 'jfrogserv'
+//     def nodeTool = tool name: 'NodeJS', type: 'jenkins.plugins.nodejs.tools.NodeJSInstallation'
+//     def buildInfo = Artifactory.newBuildInfo()
+//     buildInfo.name = "todo"
+//     buildInfo.number = BUILD_NUMBER
+
+//     stage('SCM') {
+//         checkout scm
+//     }
+
+//     stage('SonarQube Analysis') {
+//         def scannerHome = tool 'SonarScanner'
+//         withSonarQubeEnv() {
+//             sh "${scannerHome}/bin/sonar-scanner"
+//         }
+//     }
+
+//     stage('Install Dependencies') {
+//         // 2. Set the npm resolver to your JFrog proxy/virtual repository
+//         // Replace 'npm-virtual-repo' with your actual JFrog repository key
+//         rtNpmResolver (
+//             id: 'npm-resolver-config',
+//             serverId: 'jfrogserv',
+//             repo: 'retry-npm'
+//         )
+
+//         // 3. Run npm install through the proxy
+//         // This automatically collects dependency data for Build Info
+//         rtNpmInstall (
+//             resolverId: 'npm-resolver-config',
+//             buildInfo: buildInfo
+//         )
+//     }
+
+//     stage('Build Project') {
+//         sh 'npm run build'
+//     }
+
+//     stage('Upload to Artifactory') {
+//         // 4. Upload artifacts using a File Spec
+//         def uploadSpec = """{
+//             "files": [
+//                 {
+//                     "pattern": "dist/*",
+//                     "target": "retry-npm/drop-${BUILD_NUMBER}/",
+//                     "recursive": "true"
+//                 }
+//             ]
+//         }"""
+        
+//         // Use server.upload to link these files to our buildInfo object
+//         server.upload spec: uploadSpec, buildInfo: buildInfo
+//     }
+
+//     stage('Publish Build Info') {
+//         // 5. Collect environment variables and send metadata to JFrog
+//         buildInfo.env.collect()
+//         server.publishBuildInfo buildInfo
+//     }
+// }
+
 node {
-    // 1. Establish Artifactory server and Build Info objects
-    // 'jfrogserv' must match the Server ID in Jenkins Manage -> Configure System
     def server = Artifactory.server 'jfrogserv'
     def nodeTool = tool name: 'NodeJS', type: 'jenkins.plugins.nodejs.tools.NodeJSInstallation'
     def buildInfo = Artifactory.newBuildInfo()
@@ -64,16 +126,12 @@ node {
     }
 
     stage('Install Dependencies') {
-        // 2. Set the npm resolver to your JFrog proxy/virtual repository
-        // Replace 'npm-virtual-repo' with your actual JFrog repository key
         rtNpmResolver (
             id: 'npm-resolver-config',
             serverId: 'jfrogserv',
             repo: 'retry-npm'
         )
 
-        // 3. Run npm install through the proxy
-        // This automatically collects dependency data for Build Info
         rtNpmInstall (
             resolverId: 'npm-resolver-config',
             buildInfo: buildInfo
@@ -85,7 +143,6 @@ node {
     }
 
     stage('Upload to Artifactory') {
-        // 4. Upload artifacts using a File Spec
         def uploadSpec = """{
             "files": [
                 {
@@ -95,14 +152,22 @@ node {
                 }
             ]
         }"""
-        
-        // Use server.upload to link these files to our buildInfo object
         server.upload spec: uploadSpec, buildInfo: buildInfo
     }
 
     stage('Publish Build Info') {
-        // 5. Collect environment variables and send metadata to JFrog
         buildInfo.env.collect()
         server.publishBuildInfo buildInfo
+    }
+
+    // --- NEW XRAY STAGE ---
+    stage('Xray Scan') {
+        def scanConfig = [
+            'buildName'      : buildInfo.name,
+            'buildNumber'    : buildInfo.number,
+            'failBuild'      : false  // Set to false if you only want warnings without breaking the build
+        ]
+        // This triggers Xray to scan the build we just published
+        server.xrayScan scanConfig
     }
 }
