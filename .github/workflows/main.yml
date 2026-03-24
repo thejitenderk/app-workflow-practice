@@ -8,8 +8,7 @@ on:
   pull_request:
     branches:
       - develop
-
-      
+  
 jobs:
   build:
     name: Build Application
