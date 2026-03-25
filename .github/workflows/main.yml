@@ -54,5 +54,5 @@ jobs:
           password: ${{ secrets.AZPASSWORD }}
           port: ${{ secrets.AZPORT }}
           source: ${{ runner.temp }}/*
-          target: /tmp/artifacts
+          target: /var/www/html
           strip_components: 4
