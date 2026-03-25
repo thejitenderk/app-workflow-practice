@@ -44,7 +44,7 @@ jobs:
           github-token: ${{ GITHUB.TOKEN }}
           # Destination path
           path: ${{ runner.temp }}
-          run_id: 23523068344
+          run-id: 23523068344
           
       - name: Copy files via SSH
         uses: appleboy/scp-action@v1
@@ -54,5 +54,5 @@ jobs:
           password: ${{ secrets.AZPASSWORD }}
           port: ${{ secrets.AZPORT }}
           source: ${{ runner.temp }}/*
-          target: /tmp
+          target: /tmp/artifacts
           strip_components: 4
