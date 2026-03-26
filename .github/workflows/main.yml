@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  NEXUS_URL: http://20.235.80.53:8082
+  NEXUS_URL: 20.235.80.53:8082
 
 jobs:
   build:
