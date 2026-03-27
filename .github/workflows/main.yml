@@ -41,12 +41,12 @@ jobs:
           VALIDATE_DOCKERFILE_HADOLINT: true
 
   scan-trivy:
-    name: Build
+    name: trivy
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Build an image from Dockerfile
         run: docker build -t ${{ env.NEXUS_URL }}/my-app:${{ github.run_number }} .
 

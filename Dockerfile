@@ -21,25 +21,27 @@
 # EXPOSE 80
 # CMD ["nginx", "-g", "daemon off;"]
 
-
-FROM node:latest AS build
+FROM node:14.17.0 AS build
 
 WORKDIR /app
 
-# BAD PRACTICE 2: package.json aur code ek saath copy (no layer caching)
-COPY . .
-RUN npm install          # BAD PRACTICE 3: npm ci ki jagah npm install
+COPY package*.json ./
 
+# VULNERABLE: npm audit fix nahi kiya, old packages
+RUN npm install --legacy-peer-deps
+
+COPY . .
 RUN npm run build
 
-# BAD PRACTICE 4: latest tag nginx bhi
-FROM nginx:latest
+# ---- Production Stage ----
+# VULNERABLE: Purani nginx image - bahut saare CVEs
+FROM nginx:1.14.0
 
-# BAD PRACTICE 5: WORKDIR nahi set kiya
-# BAD PRACTICE 6: rm -rf nahi kiya purana content
+WORKDIR /usr/share/nginx/html
 
-COPY --from=build /app/build /usr/share/nginx/html
+RUN rm -rf ./*
 
-# BAD PRACTICE 7: EXPOSE nahi likha
-# BAD PRACTICE 8: CMD me shell form use kiya (exec form better hota hai)
-CMD nginx -g "daemon off;"
+COPY --from=build /app/build .
+
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
