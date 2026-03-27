@@ -16,19 +16,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Allow HTTP Registry
-        run: |
-          echo '{"insecure-registries": ["20.235.80.53:8082"]}' | sudo tee /etc/docker/daemon.json
-          sudo systemctl restart docker
-
-      - name: Docker Build
-        run: sudo docker build -t react-app:${{ github.run_number }} .
-
       - name: Docker Login
-        run: echo "${{ secrets.NEXUS_PASSWORD }}" | sudo docker login $NEXUS_URL -u ${{ secrets.NEXUS_USERNAME }} --password-stdin
+        # You may pin to the exact commit or the version.
+        # uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2
+        uses: docker/login-action@v4.0.0
+        with:
+          # Server address of Docker registry. If not set then will default to Docker Hub
+          registry: $NEXUS_URL
+          # Username used to log against the Docker registry
+          username: ${{ secrets.NEXUS_USERNAME }}
+          # Password or personal access token used to log against the Docker registry
+          password: ${{ secrets.NEXUS_PASSWORD }}
+      
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v7.0.0
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: $NEXUS_URL/react-app:${{ github.run_number }}
+      
 
-      - name: Docker Tag
-        run: sudo docker tag react-app:${{ github.run_number }} $NEXUS_URL/react-app:${{ github.run_number }}
 
-      - name: Docker Push
-        run: sudo docker push $NEXUS_URL/react-app:${{ github.run_number }}
+                
