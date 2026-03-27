@@ -28,7 +28,7 @@ jobs:
         with:
           registry: ${{ env.NEXUS_URL }}
           username: ${{ secrets.ACR_USER }}
-          password: ${{ secrets.ACR_PASSWORD }}
+          password: ${{ secrets.ACR_PASS }}
       
       - name: Build and push Docker images
         uses: docker/build-push-action@v7.0.0
