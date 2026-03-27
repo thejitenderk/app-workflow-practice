@@ -10,7 +10,7 @@ env:
 
 
 jobs:
-  scan:
+  scan-superlinter:
     runs-on: ubuntu-latest
 
     permissions:
@@ -39,6 +39,26 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_ALL_CODEBASE: true
           VALIDATE_DOCKERFILE_HADOLINT: true
+
+  scan-trivy:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Build an image from Dockerfile
+        run: docker build -t ${{ env.NEXUS_URL }}/my-app:${{ github.run_number }} .
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          image-ref: '${{ env.NEXUS_URL }}/my-app:${{ github.run_number }}'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
 
       
   # build:
