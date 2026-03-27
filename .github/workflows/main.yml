@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  NEXUS_URL: 20.235.80.53:8082
+  NEXUS_URL: acrforall.azurecr.io
 
 jobs:
   build:
@@ -27,8 +27,8 @@ jobs:
         uses: docker/login-action@v4.0.0
         with:
           registry: ${{ env.NEXUS_URL }}
-          username: ${{ secrets.NEXUS_USERNAME }}
-          password: ${{ secrets.NEXUS_PASSWORD }}
+          username: ${{ secrets.ACR_USER }}
+          password: ${{ secrets.ACR_PASSWORD }}
       
       - name: Build and push Docker images
         uses: docker/build-push-action@v7.0.0
