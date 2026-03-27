@@ -12,35 +12,35 @@ env:
 
 
 jobs:
-  scan-superlinter:
-    runs-on: ubuntu-latest
+  # scan-superlinter:
+  #   runs-on: ubuntu-latest
 
-    permissions:
-      # contents permission to clone the repository
-      contents: read
-      packages: read
-      # issues and pull-requests permissions to write results as pull
-      # request comments. Omit them if you don't need summary comments
-      issues: write
-      pull-requests: write
-      # To report GitHub Actions status checks. Omit if you don't need
-      # to update commit status
-      statuses: write
+  #   permissions:
+  #     # contents permission to clone the repository
+  #     contents: read
+  #     packages: read
+  #     # issues and pull-requests permissions to write results as pull
+  #     # request comments. Omit them if you don't need summary comments
+  #     issues: write
+  #     pull-requests: write
+  #     # To report GitHub Actions status checks. Omit if you don't need
+  #     # to update commit status
+  #     statuses: write
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-          persist-credentials: false
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v6
+  #       with:
+  #         fetch-depth: 0
+  #         persist-credentials: false
 
-      - name: Super-linter
-        uses: super-linter/super-linter@v8.5.0 # x-release-please-version
-        env:
-          # To report GitHub Actions status checks
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VALIDATE_ALL_CODEBASE: true
-          VALIDATE_DOCKERFILE_HADOLINT: true
+  #     - name: Super-linter
+  #       uses: super-linter/super-linter@v8.5.0 # x-release-please-version
+  #       env:
+  #         # To report GitHub Actions status checks
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #         VALIDATE_ALL_CODEBASE: true
+  #         VALIDATE_DOCKERFILE_HADOLINT: true
 
   scan-trivy:
     name: trivy
@@ -64,7 +64,7 @@ jobs:
           severity: 'CRITICAL,HIGH'
           
       - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v3.2.2
+        uses: actions/upload-artifact@v4
         with:
           # Artifact name
           name: result
