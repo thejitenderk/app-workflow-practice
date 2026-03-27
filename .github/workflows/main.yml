@@ -22,7 +22,7 @@ jobs:
         uses: docker/login-action@v4.0.0
         with:
           # Server address of Docker registry. If not set then will default to Docker Hub
-          registry: $NEXUS_URL
+          registry: ${{ env.NEXUS_URL }}
           # Username used to log against the Docker registry
           username: ${{ secrets.NEXUS_USERNAME }}
           # Password or personal access token used to log against the Docker registry
