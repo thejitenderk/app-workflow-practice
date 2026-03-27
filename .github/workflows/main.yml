@@ -51,7 +51,7 @@ jobs:
         run: docker build -t ${{ env.NEXUS_URL }}/my-app:${{ github.run_number }} .
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.33.1
+        uses: aquasecurity/trivy-action@v0.35.0
         with:
           image-ref: '${{ env.NEXUS_URL }}/my-app:${{ github.run_number }}'
           format: 'table'
